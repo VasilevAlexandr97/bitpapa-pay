@@ -10,8 +10,7 @@
 Install bitpapa-pay
 
 ```
-    pip install bitpapa-pay
-
+pip install bitpapa-pay
 ```
     
 ## Usage/Examples
