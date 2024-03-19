@@ -9,7 +9,9 @@
 
 Install bitpapa-pay
 
-```bash
+```
+    pip install bitpapa-pay
+
 ```
     
 ## Usage/Examples
