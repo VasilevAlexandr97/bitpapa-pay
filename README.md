@@ -23,7 +23,7 @@ from bitpapa_pay import BitpapaPay
 
 async def main():
     bitpapa = BitpapaPay(api_token="wDSJlwtszc-MsrdRSbyo")
-    result = await bitpapa.create_telegram_invoice("USD", 100)
+    result = await bitpapa.create_telegram_invoice("USDT", 100)
     print(result.model_dump())
     print(
         result.invoice.id,
