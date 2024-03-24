@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Final
+from typing import Final, Optional
 
 from aiohttp import ClientResponse
 
@@ -10,7 +10,7 @@ DEFAULT_TIMEOUT: Final[float] = 60.0
 
 
 class Client(ABC):
-    def __init__(self, timeout: float | None = DEFAULT_TIMEOUT) -> None:
+    def __init__(self, timeout: Optional[float] = DEFAULT_TIMEOUT) -> None:
         self.timeout = timeout
 
     @abstractmethod

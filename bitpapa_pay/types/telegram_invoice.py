@@ -1,10 +1,12 @@
+from typing import Union, List
+
 from pydantic import BaseModel, computed_field
 
 
 class Invoice(BaseModel):
     id: str
     currency_code: str
-    amount: int | float
+    amount: Union[int, float]
     status: str
     created_at: str
     updated_at: str
@@ -19,4 +21,4 @@ class TelegramInvoice(BaseModel):
 
 
 class TelegramInvoices(BaseModel):
-    invoices: list[Invoice]
+    invoices: List[Invoice]

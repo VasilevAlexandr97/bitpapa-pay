@@ -5,13 +5,11 @@ description = "Bitpapa Pay async python wrapper"
 authors = ["VasilevAlexandr97 <vasilev.alex.work@gmail.com>"]
 readme = "README.md"
 
-
 [tool.poetry.dependencies]
-python = "^3.10"
-aiohttp = "^3.9.3"
-pydantic = "^2.6.4"
-loguru = "^0.7.2"
-
+python = "^3.8"
+aiohttp = "^3.8.6"
+pydantic = "^2.4.1"
+loguru = "^0.7.0"
 
 [build-system]
 requires = ["poetry-core"]

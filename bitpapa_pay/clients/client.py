@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, Final
+from typing import Any, Final, Optional, Union
 
 from aiohttp import ClientSession
 from loguru import logger
@@ -15,7 +15,7 @@ DEFAULT_URL: Final[str] = "https://bitpapa.com"
 
 
 class BitpapaPay(Client):
-    def __init__(self, api_token: str, timeout: float | None = None) -> None:
+    def __init__(self, api_token: str, timeout: Optional[float] = None) -> None:
         """_summary_
 
         Args:
@@ -49,7 +49,7 @@ class BitpapaPay(Client):
     async def get_request(
         self,
         endpoint: str,
-        params: dict | None = None
+        params: Optional[dict] = None
     ):
         async with self._session.get(
             url=endpoint, params=params, timeout=self.timeout
@@ -61,7 +61,7 @@ class BitpapaPay(Client):
     async def post_request(
         self,
         endpoint: str,
-        json: dict | None = None
+        json: Optional[dict] = None
     ):
         async with self._session.post(
             url=endpoint, json=json, timeout=self.timeout
@@ -86,7 +86,7 @@ class BitpapaPay(Client):
     async def create_telegram_invoice(
         self,
         currency_code: str,
-        amount: int | float
+        amount: Union[int, float]
     ) -> types.TelegramInvoice:
         """Issue an invoice to get payment
         docs url - https://bitpapa.stoplight.io/docs/backend-apis-english/23oj83o5x2su2-issue-an-invoice
