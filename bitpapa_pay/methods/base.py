@@ -1,9 +1,23 @@
-from typing import Any
+from abc import ABC, abstractmethod
+from typing import Any, Literal, Optional
 
 from pydantic import BaseModel
 
 
-class BaseMethod(BaseModel):
-    _request_type: str
-    _endpoint: str
-    _returning: Any
+class BaseOutData(BaseModel):
+    endpoint: str
+    request_type: Literal["GET", "POST"]
+    params: Optional[dict] = None
+    json_data: Optional[dict] = None
+    returning_model: Any
+
+
+class BaseMethod(ABC):
+    @property
+    @abstractmethod
+    def endpoint(self) -> str:
+        pass
+
+    @abstractmethod
+    def get_data(self) -> BaseOutData:
+        pass
