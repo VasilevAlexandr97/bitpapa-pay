@@ -22,17 +22,17 @@ class TelegramInvoices(BaseModel):
     invoices: List[TelegramInvoice]
 
 
-class TelegramInvoiceIn(BaseModel):
+class TelegramInvoiceInputData(BaseModel):
     currency_code: str
     amount: Union[int, float]
 
 
-class CreateTelegramInvoiceJD(BaseModel):
+class CreateTelegramInvoiceInputData(BaseModel):
     api_token: str
-    invoice: TelegramInvoiceIn
+    invoice: TelegramInvoiceInputData
 
 
-class CreateTelegramInvoiceOut(BaseModel):
+class CreateTelegramInvoiceOutputData(BaseModel):
     invoice: TelegramInvoice
 
 
@@ -47,7 +47,7 @@ class CreateTelegramInvoice(BaseMethod):
         currency_code: str,
         amount: Union[int, float]
     ) -> None:
-        self.returning_model: Type[CreateTelegramInvoiceOut] = CreateTelegramInvoiceOut
+        self.returning_model: Type[CreateTelegramInvoiceOutputData] = CreateTelegramInvoiceOutputData
         self.api_token = api_token
         self.currency_code = currency_code
         self.amount = amount
@@ -60,9 +60,9 @@ class CreateTelegramInvoice(BaseMethod):
         return BaseOutData(
             endpoint=self.endpoint,
             request_type="POST",
-            json_data=CreateTelegramInvoiceJD(
+            json_data=CreateTelegramInvoiceInputData(
                 api_token=self.api_token,
-                invoice=TelegramInvoiceIn(
+                invoice=TelegramInvoiceInputData(
                     currency_code=self.currency_code,
                     amount=self.amount
                 )

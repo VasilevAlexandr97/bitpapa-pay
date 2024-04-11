@@ -1,4 +1,4 @@
-from typing import Any, Final, Optional
+from typing import Any, Final, Optional, Union
 
 from aiohttp import ClientSession
 
@@ -6,7 +6,7 @@ from bitpapa_pay.methods.base import BaseMethod
 from bitpapa_pay.methods.exchange_rates import (GetExchangeRates,
                                                 GetExchangeRatesOut)
 from bitpapa_pay.methods.telegram import (CreateTelegramInvoice,
-                                          CreateTelegramInvoiceOut,
+                                          CreateTelegramInvoiceOutputData,
                                           GetTelegramInvoices,
                                           TelegramInvoices)
 from bitpapa_pay.version import VERSION
@@ -81,6 +81,12 @@ class HttpClient:
 
 class DefaultApiClient(HttpClient):
     async def get_exchange_rates_all(self) -> GetExchangeRatesOut:
+        """Get all exchange rates
+
+        Returns:
+            GetExchangeRatesOut: An object where the keys are abbreviations of 
+            a pair of exchange rates separated by "_"
+        """
         method = GetExchangeRates()
         result = await self._make_request(method)
         return method.returning_model(**result)
@@ -92,6 +98,11 @@ class TelegramBitpapaPay(DefaultApiClient):
         self._api_token = api_token
 
     async def get_invoices(self) -> TelegramInvoices:
+        """Get the list of invoices
+
+        Returns:
+            TelegramInvoices: list of telegram invoices
+        """
         method = GetTelegramInvoices(api_token=self._api_token)
         result = await self._make_request(method)
         return method.returning_model(**result)
@@ -99,8 +110,16 @@ class TelegramBitpapaPay(DefaultApiClient):
     async def create_invoice(
         self,
         currency_code: str,
-        amount: int
-    ) -> CreateTelegramInvoiceOut:
+        amount: Union[int, float]
+    ) -> CreateTelegramInvoiceOutputData:
+        """Issue an invoice to get payment, https://apidocs.bitpapa.com/docs/backend-apis-english/23oj83o5x2su2-issue-an-invoice
+        Args:
+            currency_code (str): The ticker of accepted cryptocurrency, example: USDT
+            amount (Union[int, float]): The amount in cryptocurrency, example 100
+
+        Returns:
+            CreateTelegramInvoiceOutputData: Created telegram invoice data
+        """
         method = CreateTelegramInvoice(
             api_token=self._api_token,
             currency_code=currency_code,
