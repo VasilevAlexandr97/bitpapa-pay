@@ -1,15 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import Any, Literal, Optional
+from typing import Any, Literal
 
-from pydantic import BaseModel
-
-
-class BaseOutData(BaseModel):
-    endpoint: str
-    request_type: Literal["GET", "POST"]
-    params: Optional[dict] = None
-    json_data: Optional[dict] = None
-    returning_model: Any
+from bitpapa_pay.types.base import BaseOutData
 
 
 class BaseMethod(ABC):

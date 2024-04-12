@@ -1,43 +1,11 @@
-from typing import List, Literal, Type, Union
-
-from pydantic import BaseModel, computed_field
+from typing import Literal, Type, Union
 
 from bitpapa_pay.methods.base import BaseMethod, BaseOutData
-
-
-class TelegramInvoice(BaseModel):
-    id: str
-    currency_code: str
-    amount: Union[int, float]
-    status: str
-    created_at: str
-    updated_at: str
-
-    @computed_field
-    def url(self) -> str:
-        return f"https://t.me/bitpapa_bot?start={self.id}"
-
-
-class TelegramInvoices(BaseModel):
-    invoices: List[TelegramInvoice]
-
-
-class TelegramInvoiceInputData(BaseModel):
-    currency_code: str
-    amount: Union[int, float]
-
-
-class CreateTelegramInvoiceInputData(BaseModel):
-    api_token: str
-    invoice: TelegramInvoiceInputData
-
-
-class CreateTelegramInvoiceOutputData(BaseModel):
-    invoice: TelegramInvoice
-
-
-class GetTelegramInvoicesInputParams(BaseModel):
-    api_token: str
+from bitpapa_pay.types.telegram import (CreateTelegramInvoiceInputData,
+                                        CreateTelegramInvoiceOutputData,
+                                        GetTelegramInvoicesInputParams,
+                                        TelegramInvoiceInputData,
+                                        TelegramInvoices)
 
 
 class CreateTelegramInvoice(BaseMethod):

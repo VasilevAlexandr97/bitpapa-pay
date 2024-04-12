@@ -1,12 +1,7 @@
-from typing import Dict, Literal, Type
-
-from pydantic import BaseModel
+from typing import Literal, Type
 
 from bitpapa_pay.methods.base import BaseMethod, BaseOutData
-
-
-class GetExchangeRatesOut(BaseModel):
-    rates: Dict[str, float]
+from bitpapa_pay.types.exchange_rates import GetExchangeRatesOut
 
 
 class GetExchangeRates(BaseMethod):
