@@ -76,13 +76,12 @@ class HttpClient:
                 endpoint=request_data.endpoint,
                 json_data=request_data.json_data
             )
-        print(result)
         return result
 
 
 class DefaultApiClient(HttpClient):
     async def get_exchange_rates_all(self) -> GetExchangeRatesOut:
-        """Get all exchange rates
+        """Get all exchange rates, https://apidocs.bitpapa.com/docs/backend-apis-english/97573257c4827-get-a-v-1-exchange-rate-all
 
         Returns:
             GetExchangeRatesOut: An object where the keys are abbreviations of 
@@ -131,7 +130,7 @@ class AdressesApiClient(HttpClient):
 
 class BitpapaPayClient(HttpClient):
     async def get_invoices(self) -> TelegramInvoices:
-        """Get the list of invoices
+        """Get the list of invoices, https://apidocs.bitpapa.com/docs/backend-apis-english/qph49kfhdjx0x-get-the-list-of-invoices
 
         Returns:
             TelegramInvoices: list of telegram invoices
