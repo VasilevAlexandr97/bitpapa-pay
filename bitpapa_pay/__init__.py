@@ -1,1 +1,1 @@
-from bitpapa_pay.client import TelegramBitpapaPay
+from bitpapa_pay.client import BitpapaPay

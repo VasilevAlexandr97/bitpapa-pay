@@ -1,4 +1,4 @@
-from typing import Dict, Type
+from typing import Dict, Literal, Type
 
 from pydantic import BaseModel
 
@@ -10,16 +10,21 @@ class GetExchangeRatesOut(BaseModel):
 
 
 class GetExchangeRates(BaseMethod):
-    def __init__(self) -> None:
-        self.returning_model: Type[GetExchangeRatesOut] = GetExchangeRatesOut
-
     @property
     def endpoint(self) -> str:
         return "/api/v1/exchange_rates/all"
 
+    @property
+    def request_type(self) -> Literal["GET"]:
+        return "GET"
+
+    @property
+    def returning_model(self) -> Type[GetExchangeRatesOut]:
+        return GetExchangeRatesOut
+
     def get_data(self) -> BaseOutData:
         return BaseOutData(
             endpoint=self.endpoint,
-            request_type="GET",
+            request_type=self.request_type,
             returning_model=self.returning_model
         )

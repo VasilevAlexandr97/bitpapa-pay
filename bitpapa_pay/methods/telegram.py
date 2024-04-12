@@ -1,4 +1,4 @@
-from typing import List, Type, Union
+from typing import List, Literal, Type, Union
 
 from pydantic import BaseModel, computed_field
 
@@ -36,7 +36,7 @@ class CreateTelegramInvoiceOutputData(BaseModel):
     invoice: TelegramInvoice
 
 
-class GetTelegramInvoicesParams(BaseModel):
+class GetTelegramInvoicesInputParams(BaseModel):
     api_token: str
 
 
@@ -47,7 +47,6 @@ class CreateTelegramInvoice(BaseMethod):
         currency_code: str,
         amount: Union[int, float]
     ) -> None:
-        self.returning_model: Type[CreateTelegramInvoiceOutputData] = CreateTelegramInvoiceOutputData
         self.api_token = api_token
         self.currency_code = currency_code
         self.amount = amount
@@ -56,10 +55,18 @@ class CreateTelegramInvoice(BaseMethod):
     def endpoint(self) -> str:
         return "/api/v1/invoices/public"
 
+    @property
+    def request_type(self) -> Literal["POST"]:
+        return "POST"
+
+    @property
+    def returning_model(self) -> Type[CreateTelegramInvoiceOutputData]:
+        return CreateTelegramInvoiceOutputData
+
     def get_data(self) -> BaseOutData:
         return BaseOutData(
             endpoint=self.endpoint,
-            request_type="POST",
+            request_type=self.request_type,
             json_data=CreateTelegramInvoiceInputData(
                 api_token=self.api_token,
                 invoice=TelegramInvoiceInputData(
@@ -73,18 +80,25 @@ class CreateTelegramInvoice(BaseMethod):
 
 class GetTelegramInvoices(BaseMethod):
     def __init__(self, api_token: str) -> None:
-        self.returning_model: Type[TelegramInvoices] = TelegramInvoices
         self.api_token = api_token
 
     @property
     def endpoint(self) -> str:
         return "/api/v1/invoices/public"
 
+    @property
+    def request_type(self) -> Literal["GET"]:
+        return "GET"
+
+    @property
+    def returning_model(self) -> Type[TelegramInvoices]:
+        return TelegramInvoices
+
     def get_data(self) -> BaseOutData:
         return BaseOutData(
             endpoint=self.endpoint,
-            request_type="GET",
-            params=GetTelegramInvoicesParams(
+            request_type=self.request_type,
+            params=GetTelegramInvoicesInputParams(
                 api_token=self.api_token
             ).model_dump(),
             returning_model=self.returning_model

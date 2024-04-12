@@ -18,12 +18,12 @@ pip install bitpapa-pay
 ```python
 import asyncio
 
-from bitpapa_pay import TelegramBitpapaPay
+from bitpapa_pay import BitpapaPay
 
 
 async def main():
-    bitpapa_pay = TelegramBitpapaPay(api_token="api_token")
-    result = await bitpapa_pay.create_invoice("USDT", -100)
+    bitpapa_pay = BitpapaPay(api_token="api_token")
+    result = await bitpapa_pay.create_invoice("USDT", 100)
     print(result.model_dump())
     print(
         result.invoice.id,
