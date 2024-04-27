@@ -1,6 +1,7 @@
 from typing import Optional, Union
 
 from aiohttp import ClientSession
+from loguru import logger
 
 from bitpapa_pay.methods.addresses import (CreateAddress,
                                            CreateAddressOutputData,
@@ -20,10 +21,15 @@ from bitpapa_pay.version import VERSION
 
 
 class HttpClient:
-    def __init__(self, api_token: str):
+    def __init__(self, api_token: str, debug: bool = False) -> None:
+        self._debug = debug
         self._base_url = "https://bitpapa.com"
         self._api_token = api_token
         self._session: Optional[ClientSession] = None
+
+    def debug_message(self, message: str):
+        if self._debug:
+            logger.debug(message)
 
     def get_headers(self):
         return {
@@ -34,6 +40,8 @@ class HttpClient:
 
     def get_session(self) -> ClientSession:
         headers = self.get_headers()
+        self.debug_message(f"request headers: {headers}")
+
         if isinstance(self._session, ClientSession):
             return self._session
         self._session = ClientSession(base_url=self._base_url, headers=headers)
@@ -64,6 +72,10 @@ class HttpClient:
     async def _make_request(self, method: BaseMethod):
         session = self.get_session()
         request_data = method.get_data()
+        self.debug_message(f"request data: {request_data}")
+        self.debug_message(
+            f"request url: {self._base_url}{request_data.endpoint}"
+        )
         if request_data.request_type == "GET":
             result = await self._get_request(
                 session=session,
@@ -76,6 +88,7 @@ class HttpClient:
                 endpoint=request_data.endpoint,
                 json_data=request_data.json_data
             )
+        self.debug_message(f"request result: {result}")
         return result
 
 
@@ -125,7 +138,7 @@ class AdressesApiClient(HttpClient):
     ) -> GetTransactionsOutputData:
         method = GetAddressTransactions(uuid)
         result = await self._make_request(method)
-        return method.returning_model(transactions=result)
+        return method.returning_model(**result)
 
 
 class BitpapaPayClient(HttpClient):
@@ -142,7 +155,8 @@ class BitpapaPayClient(HttpClient):
     async def create_invoice(
         self,
         currency_code: str,
-        amount: Union[int, float]
+        amount: Union[int, float],
+        crypto_address: Optional[str] = None
     ) -> CreateTelegramInvoiceOutputData:
         """Issue an invoice to get payment, https://apidocs.bitpapa.com/docs/backend-apis-english/23oj83o5x2su2-issue-an-invoice
         Args:
@@ -155,7 +169,8 @@ class BitpapaPayClient(HttpClient):
         method = CreateTelegramInvoice(
             api_token=self._api_token,
             currency_code=currency_code,
-            amount=amount
+            amount=amount,
+            crypto_address=crypto_address
         )
         result = await self._make_request(method)
         return method.returning_model(**result)

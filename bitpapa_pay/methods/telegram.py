@@ -1,4 +1,4 @@
-from typing import Literal, Type, Union
+from typing import Literal, Type, Union, Optional
 
 from bitpapa_pay.methods.base import BaseMethod, BaseOutData
 from bitpapa_pay.types.telegram import (CreateTelegramInvoiceInputData,
@@ -13,11 +13,13 @@ class CreateTelegramInvoice(BaseMethod):
         self,
         api_token: str,
         currency_code: str,
-        amount: Union[int, float]
+        amount: Union[int, float],
+        crypto_address: Optional[str] = None
     ) -> None:
         self.api_token = api_token
         self.currency_code = currency_code
         self.amount = amount
+        self.crypto_address = crypto_address
 
     @property
     def endpoint(self) -> str:
@@ -39,8 +41,9 @@ class CreateTelegramInvoice(BaseMethod):
                 api_token=self.api_token,
                 invoice=TelegramInvoiceInputData(
                     currency_code=self.currency_code,
-                    amount=self.amount
-                )
+                    amount=self.amount,
+                    crypto_address=self.crypto_address
+                ),
             ).model_dump(),
             returning_model=self.returning_model
         )

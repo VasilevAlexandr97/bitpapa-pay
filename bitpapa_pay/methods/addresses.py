@@ -1,4 +1,5 @@
 from typing import List, Literal, Optional, Type, Union
+from uuid import UUID
 
 from pydantic import BaseModel
 
@@ -6,18 +7,12 @@ from bitpapa_pay.methods.base import BaseMethod, BaseOutData
 
 
 class Address(BaseModel):
-    id: Union[int]
+    id: UUID
     address: Optional[str]
     currency: str
     network: str
     balance: Optional[Union[int, float]]
     label: str
-    private_key: Optional[str]
-    created_at: str
-    updated_at: str
-    merchant_account_id: int
-    uuid: str
-    is_system: bool
 
 
 class NewAddress(BaseModel):

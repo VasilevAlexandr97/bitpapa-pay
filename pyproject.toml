@@ -9,6 +9,7 @@ readme = "README.md"
 python = "^3.8"
 aiohttp = "^3.8.6"
 pydantic = "^2.4.1"
+loguru = "^0.7.2"
 
 [build-system]
 requires = ["poetry-core"]

@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import List, Optional, Union
 
 from pydantic import BaseModel, computed_field
 
@@ -23,6 +23,7 @@ class TelegramInvoices(BaseModel):
 class TelegramInvoiceInputData(BaseModel):
     currency_code: str
     amount: Union[int, float]
+    crypto_address: Optional[str]
 
 
 class CreateTelegramInvoiceInputData(BaseModel):
