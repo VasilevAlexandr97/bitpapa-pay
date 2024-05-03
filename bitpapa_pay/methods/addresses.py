@@ -15,14 +15,6 @@ class Address(BaseModel):
     label: str
 
 
-class NewAddress(BaseModel):
-    id: str
-    address: str
-    currency: str
-    balance: Optional[Union[int, float]]
-    label: str
-
-
 class GetAddressesOutputData(BaseModel):
     addresses: List[Address]
 
@@ -39,7 +31,7 @@ class CreateAddressInputData(BaseModel):
 
 
 class CreateAddressOutputData(BaseModel):
-    address: NewAddress
+    address: Address
 
 
 class GetTransactionsOutputData(BaseModel):
