@@ -7,6 +7,7 @@ class TelegramInvoice(BaseModel):
     id: str
     currency_code: str
     amount: Union[int, float]
+    crypto_address: Optional[str]
     status: str
     created_at: str
     updated_at: str
