@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Literal
 
-from bitpapa_pay.types.base import BaseOutData
+from bitpapa_pay.schemas.base import BaseOutData
 
 
 class BaseMethod(ABC):

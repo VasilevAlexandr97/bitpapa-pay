@@ -1,7 +1,7 @@
 from typing import Literal, Type
 
 from bitpapa_pay.methods.base import BaseMethod, BaseOutData
-from bitpapa_pay.types.exchange_rates import GetExchangeRatesOut
+from bitpapa_pay.schemas.exchange_rates import GetExchangeRatesOut
 
 
 class GetExchangeRates(BaseMethod):

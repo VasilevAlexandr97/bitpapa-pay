@@ -1,11 +1,11 @@
-from typing import Literal, Type, Union, Optional
+from typing import Literal, Optional, Type, Union
 
 from bitpapa_pay.methods.base import BaseMethod, BaseOutData
-from bitpapa_pay.types.telegram import (CreateTelegramInvoiceInputData,
-                                        CreateTelegramInvoiceOutputData,
-                                        GetTelegramInvoicesInputParams,
-                                        TelegramInvoiceInputData,
-                                        TelegramInvoices)
+from bitpapa_pay.schemas.telegram import (CreateTelegramInvoiceInputData,
+                                          CreateTelegramInvoiceOutputData,
+                                          GetTelegramInvoicesInputParams,
+                                          TelegramInvoiceInputData,
+                                          TelegramInvoices)
 
 
 class CreateTelegramInvoice(BaseMethod):
