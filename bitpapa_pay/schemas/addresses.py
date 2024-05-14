@@ -33,4 +33,4 @@ class CreateAddressOutputData(BaseModel):
 
 
 class GetTransactionsOutputData(BaseModel):
-    transactions: List
+    transaction: List
