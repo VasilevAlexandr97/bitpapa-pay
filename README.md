@@ -1,9 +1,6 @@
-
 # Bitpapa Pay asynchronous api wrapper
 
 **Docs**: https://apidocs.bitpapa.com/docs/apidocs/wvea40l9be95f-integracziya-bitpapa-pay
-
-    
 
 ## Installation
 
@@ -12,7 +9,7 @@ Install bitpapa-pay
 ```
 pip install bitpapa-pay
 ```
-    
+
 ## Usage/Examples
 
 ```python
@@ -48,8 +45,9 @@ async def main():
     result = await bitpapa_pay.get_exchange_rates_all()
     print(result)
 
+    await bitpapa_pay.close()
+
 
 if __name__ == "__main__":
     asyncio.run(main())
 ```
-

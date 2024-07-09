@@ -1,22 +1,25 @@
 from typing import Optional, Union
 
-from aiohttp import ClientSession
+from aiohttp import ClientError, ClientSession
 from loguru import logger
 
-from bitpapa_pay.methods.addresses import (CreateAddress,
-                                           CreateAddressOutputData,
-                                           GetAddresses,
-                                           GetAddressesOutputData,
+from bitpapa_pay.exceptions import BadRequestError
+from bitpapa_pay.methods.addresses import (CreateAddress, GetAddresses,
                                            GetAddressTransactions,
-                                           GetTransactions,
-                                           GetTransactionsOutputData)
+                                           GetTransactions, RefillTransaction,
+                                           WithdrawalTransaction)
 from bitpapa_pay.methods.base import BaseMethod
-from bitpapa_pay.methods.exchange_rates import (GetExchangeRates,
-                                                GetExchangeRatesOut)
+from bitpapa_pay.methods.exchange_rates import GetExchangeRates
 from bitpapa_pay.methods.telegram import (CreateTelegramInvoice,
-                                          CreateTelegramInvoiceOutputData,
                                           GetTelegramInvoices,
                                           TelegramInvoices)
+from bitpapa_pay.schemas.addresses import (CreateAddressOutputData,
+                                           GetAddressesOutputData,
+                                           GetTransactionsOutputData,
+                                           RefillTransactionOutputData,
+                                           WithdrawalTransactionOutputData)
+from bitpapa_pay.schemas.exchange_rates import GetExchangeRatesOutputData
+from bitpapa_pay.schemas.telegram import CreateTelegramInvoiceOutputData
 from bitpapa_pay.version import VERSION
 
 
@@ -58,6 +61,8 @@ class HttpClient:
         params: Optional[dict] = None
     ):
         async with session.get(url=endpoint, params=params) as resp:
+            self.debug_message(f"status: {resp.status}")
+            resp.raise_for_status()
             return await resp.json()
 
     async def _post_request(
@@ -67,6 +72,8 @@ class HttpClient:
         json_data: Optional[dict] = None
     ):
         async with session.post(url=endpoint, json=json_data) as resp:
+            self.debug_message(f"status: {resp.status}")
+            resp.raise_for_status()
             return await resp.json()
 
     async def _make_request(self, method: BaseMethod):
@@ -76,24 +83,27 @@ class HttpClient:
         self.debug_message(
             f"request url: {self._base_url}{request_data.endpoint}"
         )
-        if request_data.request_type == "GET":
-            result = await self._get_request(
-                session=session,
-                endpoint=request_data.endpoint,
-                params=request_data.params
-            )
-        elif request_data.request_type == "POST":
-            result = await self._post_request(
-                session=session,
-                endpoint=request_data.endpoint,
-                json_data=request_data.json_data
-            )
+        try:
+            if request_data.request_type == "GET":
+                result = await self._get_request(
+                    session=session,
+                    endpoint=request_data.endpoint,
+                    params=request_data.params
+                )
+            elif request_data.request_type == "POST":
+                result = await self._post_request(
+                    session=session,
+                    endpoint=request_data.endpoint,
+                    json_data=request_data.json_data
+                )
+        except ClientError as e:
+            raise BadRequestError(e)
         self.debug_message(f"request result: {result}")
         return result
 
 
 class DefaultApiClient(HttpClient):
-    async def get_exchange_rates_all(self) -> GetExchangeRatesOut:
+    async def get_exchange_rates_all(self) -> GetExchangeRatesOutputData:
         """Get all exchange rates, https://apidocs.bitpapa.com/docs/backend-apis-english/97573257c4827-get-a-v-1-exchange-rate-all
 
         Returns:
@@ -137,6 +147,42 @@ class AdressesApiClient(HttpClient):
         uuid: str
     ) -> GetTransactionsOutputData:
         method = GetAddressTransactions(uuid)
+        result = await self._make_request(method)
+        return method.returning_model(**result)
+
+    async def withdrawal_transaction(
+        self,
+        currency: str,
+        amount: Union[int, float],
+        to_address: str,
+        network: str,
+        label: str = ""
+    ) -> WithdrawalTransactionOutputData:
+        method = WithdrawalTransaction(
+            currency=currency,
+            amount=amount,
+            to_address=to_address,
+            network=network,
+            label=label
+        )
+        result = await self._make_request(method)
+        return method.returning_model(**result)
+
+    async def refill_transaction(
+        self,
+        currency: str,
+        amount: Union[int, float],
+        from_address: str,
+        network: str,
+        label: str = ""
+    ) -> RefillTransactionOutputData:
+        method = RefillTransaction(
+            currency=currency,
+            amount=amount,
+            from_address=from_address,
+            network=network,
+            label=label
+        )
         result = await self._make_request(method)
         return method.returning_model(**result)
 

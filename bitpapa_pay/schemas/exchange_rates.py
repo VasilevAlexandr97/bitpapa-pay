@@ -3,5 +3,5 @@ from typing import Dict
 from pydantic import BaseModel
 
 
-class GetExchangeRatesOut(BaseModel):
+class GetExchangeRatesOutputData(BaseModel):
     rates: Dict[str, float]

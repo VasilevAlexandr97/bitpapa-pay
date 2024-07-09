@@ -1,7 +1,7 @@
 from typing import List, Optional, Union
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class Address(BaseModel):
@@ -47,3 +47,33 @@ class Transaction(BaseModel):
 
 class GetTransactionsOutputData(BaseModel):
     transaction: List[Transaction]
+
+
+class WithdrawalTransactionInputData(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    direction: str = Field(default="withdrawal")
+    currency: str
+    amount: Union[int, float]
+    to_address: str = Field(alias="to")
+    network: str
+    label: str = ""
+
+
+class WithdrawalTransactionOutputData(BaseModel):
+    transaction: Transaction
+
+
+class RefillTransactionInputData(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    direction: str = Field(default="refill")
+    currency: str
+    amount: Union[int, float]
+    from_address: str = Field(alias="from")
+    network: str
+    label: str = Field(default="")
+
+
+class RefillTransactionOutputData(BaseModel):
+    transaction: Transaction

@@ -1,7 +1,7 @@
 from typing import Literal, Type
 
 from bitpapa_pay.methods.base import BaseMethod, BaseOutData
-from bitpapa_pay.schemas.exchange_rates import GetExchangeRatesOut
+from bitpapa_pay.schemas.exchange_rates import GetExchangeRatesOutputData
 
 
 class GetExchangeRates(BaseMethod):
@@ -14,8 +14,8 @@ class GetExchangeRates(BaseMethod):
         return "GET"
 
     @property
-    def returning_model(self) -> Type[GetExchangeRatesOut]:
-        return GetExchangeRatesOut
+    def returning_model(self) -> Type[GetExchangeRatesOutputData]:
+        return GetExchangeRatesOutputData
 
     def get_data(self) -> BaseOutData:
         return BaseOutData(
