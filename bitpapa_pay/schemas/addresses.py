@@ -46,7 +46,7 @@ class Transaction(BaseModel):
 
 
 class GetTransactionsOutputData(BaseModel):
-    transaction: List[Transaction]
+    transactions: List[Transaction] = Field(alias="transaction")
 
 
 class WithdrawalTransactionInputData(BaseModel):
