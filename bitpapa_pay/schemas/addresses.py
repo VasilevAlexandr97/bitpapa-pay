@@ -36,9 +36,9 @@ class Transaction(BaseModel):
     id: UUID
     direction: str
     txhash: Optional[str]
-    currency: str
+    currency: Optional[str]
     network: Optional[str]
-    amount: Union[str, float]
+    amount: Optional[Union[str, float]]
     from_: Optional[str] = Field(alias="from")
     to: Optional[str]
     input: Optional[str]
@@ -46,6 +46,10 @@ class Transaction(BaseModel):
 
 
 class GetTransactionsOutputData(BaseModel):
+    transactions: List[Transaction]
+
+
+class GetAddressTransactionsOutputData(BaseModel):
     transactions: List[Transaction] = Field(alias="transaction")
 
 

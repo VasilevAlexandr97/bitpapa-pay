@@ -15,6 +15,7 @@ from bitpapa_pay.methods.telegram import (CreateTelegramInvoice,
                                           TelegramInvoices)
 from bitpapa_pay.schemas.addresses import (CreateAddressOutputData,
                                            GetAddressesOutputData,
+                                           GetAddressTransactionsOutputData,
                                            GetTransactionsOutputData,
                                            RefillTransactionOutputData,
                                            WithdrawalTransactionOutputData)
@@ -140,12 +141,13 @@ class AdressesApiClient(HttpClient):
     ) -> GetTransactionsOutputData:
         method = GetTransactions()
         result = await self._make_request(method)
+        print(type(result))
         return method.returning_model(transactions=result)
 
     async def get_address_transactions(
         self,
         uuid: str
-    ) -> GetTransactionsOutputData:
+    ) -> GetAddressTransactionsOutputData:
         method = GetAddressTransactions(uuid)
         result = await self._make_request(method)
         return method.returning_model(**result)

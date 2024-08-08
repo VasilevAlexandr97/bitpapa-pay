@@ -6,6 +6,7 @@ from bitpapa_pay.schemas.addresses import (CreateAddressInputData,
                                            GetAddressesOutputData,
                                            GetAddressesParams,
                                            GetTransactionsOutputData,
+                                           GetAddressTransactionsOutputData,
                                            RefillTransactionInputData,
                                            RefillTransactionOutputData,
                                            WithdrawalTransactionInputData,
@@ -115,8 +116,8 @@ class GetAddressTransactions(BaseMethod):
         return "GET"
 
     @property
-    def returning_model(self) -> Type[GetTransactionsOutputData]:
-        return GetTransactionsOutputData
+    def returning_model(self) -> Type[GetAddressTransactionsOutputData]:
+        return GetAddressTransactionsOutputData
 
     def get_data(self) -> BaseOutData:
         return BaseOutData(
