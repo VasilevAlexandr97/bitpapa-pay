@@ -5,8 +5,10 @@ from bitpapa_pay.schemas.addresses import (CreateAddressInputData,
                                            CreateAddressOutputData,
                                            GetAddressesOutputData,
                                            GetAddressesParams,
-                                           GetTransactionsOutputData,
                                            GetAddressTransactionsOutputData,
+                                           GetTransactionsOutputData,
+                                           NewTransactionInputData,
+                                           NewTransactionOutputData,
                                            RefillTransactionInputData,
                                            RefillTransactionOutputData,
                                            WithdrawalTransactionInputData,
@@ -123,6 +125,53 @@ class GetAddressTransactions(BaseMethod):
         return BaseOutData(
             endpoint=self.endpoint,
             request_type=self.request_type,
+            returning_model=self.returning_model
+        )
+
+
+class NewTransaction(BaseMethod):
+    def __init__(
+        self,
+        currency: str,
+        amount: Union[int, float],
+        from_address: str,
+        to_address: str,
+        network: str,
+        label: str = ""
+    ) -> None:
+        self.direction = "offchain"
+        self.currency = currency
+        self.amount = amount
+        self.from_address = from_address
+        self.to_address = to_address
+        self.netwok = network
+        self.label = label
+
+    @property
+    def endpoint(self) -> str:
+        return "/a3s/v1/transactions/new"
+
+    @property
+    def request_type(self) -> Literal["POST"]:
+        return "POST"
+
+    @property
+    def returning_model(self) -> Type[NewTransactionOutputData]:
+        return NewTransactionOutputData
+
+    def get_data(self) -> BaseOutData:
+        return BaseOutData(
+            endpoint=self.endpoint,
+            request_type=self.request_type,
+            json_data=NewTransactionInputData(
+                direction=self.direction,
+                currency=self.currency,
+                amount=self.amount,
+                from_address=self.from_address,
+                to_address=self.to_address,
+                network=self.netwok,
+                label=self.label
+            ).model_dump(by_alias=True),
             returning_model=self.returning_model
         )
 

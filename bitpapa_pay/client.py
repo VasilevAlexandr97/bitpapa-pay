@@ -6,7 +6,8 @@ from loguru import logger
 from bitpapa_pay.exceptions import BadRequestError
 from bitpapa_pay.methods.addresses import (CreateAddress, GetAddresses,
                                            GetAddressTransactions,
-                                           GetTransactions, RefillTransaction,
+                                           GetTransactions, NewTransaction,
+                                           RefillTransaction,
                                            WithdrawalTransaction)
 from bitpapa_pay.methods.base import BaseMethod
 from bitpapa_pay.methods.exchange_rates import GetExchangeRates
@@ -17,6 +18,7 @@ from bitpapa_pay.schemas.addresses import (CreateAddressOutputData,
                                            GetAddressesOutputData,
                                            GetAddressTransactionsOutputData,
                                            GetTransactionsOutputData,
+                                           NewTransactionOutputData,
                                            RefillTransactionOutputData,
                                            WithdrawalTransactionOutputData)
 from bitpapa_pay.schemas.exchange_rates import GetExchangeRatesOutputData
@@ -141,7 +143,12 @@ class AdressesApiClient(HttpClient):
     ) -> GetTransactionsOutputData:
         method = GetTransactions()
         result = await self._make_request(method)
-        print(type(result))
+        result = [
+            tr for tr in result
+            if tr["direction"] is not None
+            and tr["amount"] is not None
+            and tr["currency"] is not None
+        ]
         return method.returning_model(transactions=result)
 
     async def get_address_transactions(
@@ -149,6 +156,34 @@ class AdressesApiClient(HttpClient):
         uuid: str
     ) -> GetAddressTransactionsOutputData:
         method = GetAddressTransactions(uuid)
+        result = await self._make_request(method)
+        result = {
+            "transaction": [
+                tr for tr in result["transaction"]
+                if tr["direction"] is not None
+                and tr["amount"] is not None
+                and tr["currency"] is not None
+            ]
+        }
+        return method.returning_model(**result)
+
+    async def new_transaction(
+        self,
+        currency: str,
+        amount: Union[int, float],
+        from_address: str,
+        to_address: str,
+        network: str,
+        label: str = ""
+    ) -> NewTransactionOutputData:
+        method = NewTransaction(
+            currency=currency,
+            amount=amount,
+            from_address=from_address,
+            to_address=to_address,
+            network=network,
+            label=label
+        )
         result = await self._make_request(method)
         return method.returning_model(**result)
 

@@ -36,11 +36,11 @@ class Transaction(BaseModel):
     id: UUID
     direction: str
     txhash: Optional[str]
-    currency: Optional[str]
+    currency: str
     network: Optional[str]
-    amount: Optional[Union[str, float]]
-    from_: Optional[str] = Field(alias="from")
-    to: Optional[str]
+    amount: Union[str, float]
+    from_address: Optional[str] = Field(alias="from")
+    to_address: Optional[str] = Field(alias="to")
     input: Optional[str]
     label: Optional[str]
 
@@ -50,7 +50,24 @@ class GetTransactionsOutputData(BaseModel):
 
 
 class GetAddressTransactionsOutputData(BaseModel):
-    transactions: List[Transaction] = Field(alias="transaction")
+    # transaction - bitpapa pay отдает в таком виде ответ
+    transaction: List[Transaction]
+
+
+class NewTransactionInputData(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    direction: str = Field(default="offchain")
+    currency: str
+    amount: Union[int, float]
+    from_address: str = Field(alias="from")
+    to_address: str = Field(alias="to")
+    network: str
+    label: str = Field(default="")
+
+
+class NewTransactionOutputData(BaseModel):
+    transaction: Transaction
 
 
 class WithdrawalTransactionInputData(BaseModel):
