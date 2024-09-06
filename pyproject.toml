@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "bitpapa-pay"
-version = "0.1.15"
+version = "0.1.16"
 description = "Bitpapa Pay async python wrapper"
 authors = ["VasilevAlexandr97 <vasilev.alex.work@gmail.com>"]
 readme = "README.md"
