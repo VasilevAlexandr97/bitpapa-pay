@@ -14,6 +14,7 @@ from bitpapa_pay.methods.exchange_rates import GetExchangeRates
 from bitpapa_pay.methods.telegram import (CreateTelegramInvoice,
                                           GetTelegramInvoices,
                                           TelegramInvoices)
+from bitpapa_pay.methods.withdrawals import GetWithdrawalFees
 from bitpapa_pay.schemas.addresses import (CreateAddressOutputData,
                                            GetAddressesOutputData,
                                            GetAddressTransactionsOutputData,
@@ -23,6 +24,7 @@ from bitpapa_pay.schemas.addresses import (CreateAddressOutputData,
                                            WithdrawalTransactionOutputData)
 from bitpapa_pay.schemas.exchange_rates import GetExchangeRatesOutputData
 from bitpapa_pay.schemas.telegram import CreateTelegramInvoiceOutputData
+from bitpapa_pay.schemas.withdrawals import GetWithdrawalFeesOutputData
 from bitpapa_pay.version import VERSION
 
 
@@ -114,6 +116,14 @@ class DefaultApiClient(HttpClient):
             a pair of exchange rates separated by "_"
         """
         method = GetExchangeRates()
+        result = await self._make_request(method)
+        return method.returning_model(**result)
+
+    async def get_withdrawal_fees(self) -> GetWithdrawalFeesOutputData:
+        """
+            Список слоев комиссий за вывод BTC и XMR в зависимости от суммы вывода в USD.
+        """
+        method = GetWithdrawalFees()
         result = await self._make_request(method)
         return method.returning_model(**result)
 
