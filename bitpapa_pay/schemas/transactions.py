@@ -6,11 +6,11 @@ from pydantic import BaseModel, Field
 
 class Transaction(BaseModel):
     id: UUID
-    direction: str
+    direction: Optional[str]
     txhash: Optional[str]
-    currency: str
+    currency: Optional[str]
     network: Optional[str]
-    amount: float
+    amount: Optional[float]
     from_address: Optional[str] = Field(alias="from")
     to_address: Optional[str] = Field(alias="to")
     input: Optional[str]

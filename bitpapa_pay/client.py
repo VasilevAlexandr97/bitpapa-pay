@@ -165,13 +165,6 @@ class AdressesApiClient(HttpClient):
     ) -> GetTransactionsResponse:
         method = GetTransactionsMethod()
         result = await self._make_request(method)
-        result = [
-            tr
-            for tr in result
-            if tr["direction"] is not None
-            and tr["amount"] is not None
-            and tr["currency"] is not None
-        ]
         return GetTransactionsResponse(transactions=result)
 
     async def get_address_transactions(
@@ -180,15 +173,6 @@ class AdressesApiClient(HttpClient):
     ) -> GetAddressTransactionsResponse:
         method = GetAddressTransactionMethod(uuid=uuid)
         result = await self._make_request(method)
-        result = {
-            "transaction": [
-                tr
-                for tr in result["transaction"]
-                if tr["direction"] is not None
-                and tr["amount"] is not None
-                and tr["currency"] is not None
-            ],
-        }
         return GetAddressTransactionsResponse(**result)
 
     async def create_transaction(
