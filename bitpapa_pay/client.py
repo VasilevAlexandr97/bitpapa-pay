@@ -5,16 +5,6 @@ from loguru import logger
 
 from bitpapa_pay.enums import RequestType
 from bitpapa_pay.exceptions import BadRequestError
-
-# from bitpapa_pay.methods.addresses import (
-#     CreateAddress,
-#     GetAddresses,
-#     GetAddressTransactions,
-#     GetTransactions,
-#     NewTransaction,
-#     RefillTransaction,
-#     WithdrawalTransaction,
-# )
 from bitpapa_pay.methods import (
     BaseMethod,
     CreateAddressMethod,
@@ -30,24 +20,6 @@ from bitpapa_pay.methods import (
     RefillTransactionMethod,
     WithdrawalTransactionMethod,
 )
-
-# from bitpapa_pay.methods.base import BaseMethod
-# from bitpapa_pay.methods.exchange_rates import GetExchangeRates
-# from bitpapa_pay.methods.telegram import (
-#     CreateTelegramCryptoInvoice,
-#     GetTelegramInvoices,
-#     TelegramInvoices,
-# )
-# from bitpapa_pay.methods.withdrawals import GetWithdrawalFees
-# from bitpapa_pay.schemas.addresses import (
-#     CreateAddressOutputData,
-#     GetAddressesOutputData,
-#     GetAddressTransactionsOutputData,
-#     GetTransactionsOutputData,
-#     NewTransactionOutputData,
-#     RefillTransactionOutputData,
-#     WithdrawalTransactionOutputData,
-# )
 from bitpapa_pay.schemas import (
     CreateAddressResponse,
     CreateInvoiceResponse,
@@ -59,10 +31,6 @@ from bitpapa_pay.schemas import (
     GetWithdrawalFeesResponse,
     TransactionResponse,
 )
-
-# from bitpapa_pay.schemas.exchange_rates import GetExchangeRatesOutputData
-# from bitpapa_pay.schemas.telegram import CreateTelegramCryptoInvoiceOutputData
-# from bitpapa_pay.schemas.withdrawals import GetWithdrawalFeesOutputData
 
 
 class HttpClient:
@@ -80,7 +48,7 @@ class HttpClient:
     def get_headers(self):
         return {
             "Content-Type": "application/json",
-            "User-Agent": f"AioBitpapaPay/{VERSION}",
+            "User-Agent": "python/pkg/bitpapa-pay",
             "X-Access-Token": self._api_token,
         }
 
