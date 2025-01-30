@@ -187,7 +187,7 @@ class AdressesApiClient(HttpClient):
                 if tr["direction"] is not None
                 and tr["amount"] is not None
                 and tr["currency"] is not None
-            ]
+            ],
         }
         return GetAddressTransactionsResponse(**result)
 
