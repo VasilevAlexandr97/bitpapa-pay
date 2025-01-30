@@ -20,30 +20,31 @@ from bitpapa_pay import BitpapaPay
 
 async def main():
     bitpapa_pay = BitpapaPay(api_token="api_token")
-    result = await bitpapa_pay.create_invoice("USDT", 100)
-    print(result.model_dump())
-    print(
-        result.invoice.id,
-        result.invoice.currency_code,
-        result.invoice.amount,
-        result.invoice.status,
-        result.invoice.created_at,
-        result.invoice.updated_at,
-        result.invoice.url
+    # Создаем крипто инвойс
+    crypto_invoice = await bitpapa_pay.create_crypto_invoice(
+        amount=1, currency_code="USDT",
+        private_message="test crypto invoice message",
+        paid_button_name="open_bot",
+        paid_button_url="https://google.com"
     )
-    result = await bitpapa_pay.get_invoices()
-    for invoice in result.invoices:
-        print(
-            invoice.id,
-            invoice.currency_code,
-            invoice.amount,
-            invoice.status,
-            invoice.created_at,
-            invoice.updated_at,
-            invoice.url
-        )
-    result = await bitpapa_pay.get_exchange_rates_all()
-    print(result)
+    print(crypto_invoice)
+
+    # Создаем фиат инвойс
+    fiat_invoice = await bitpapa_pay.create_fiat_invoice(
+        accepted_crypto=["USDT"],
+        fiat_amount=10,
+        fiat_currency_code="RUB",
+        expiration_time=29,
+        merchant_invoice_id="test merchant id 123",
+        paid_button_name="callback",
+        paid_button_url="https://google.com",
+        private_message="test fiat invoice message"
+    )
+    print(fiat_invoice)
+
+    # Получаем инвойсы
+    invoices = await bitpapa_pay.get_invoices(page=3)
+    print(invoices)
 
     await bitpapa_pay.close()
 

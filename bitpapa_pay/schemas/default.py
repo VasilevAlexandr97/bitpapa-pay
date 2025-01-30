@@ -1,5 +1,10 @@
+from typing import Dict, List, Optional, Union
+
 from pydantic import BaseModel
-from typing import Union, Dict, List, Optional
+
+
+class GetExchangeRatesResponse(BaseModel):
+    rates: Dict[str, float]
 
 
 class FeeData(BaseModel):
@@ -9,5 +14,5 @@ class FeeData(BaseModel):
     network: str
 
 
-class GetWithdrawalFeesOutputData(BaseModel):
+class GetWithdrawalFeesResponse(BaseModel):
     withdrawal_fees: Dict[str, List[FeeData]]

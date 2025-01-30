@@ -1,37 +1,75 @@
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 from aiohttp import ClientError, ClientSession
 from loguru import logger
 
+from bitpapa_pay.enums import RequestType
 from bitpapa_pay.exceptions import BadRequestError
-from bitpapa_pay.methods.addresses import (CreateAddress, GetAddresses,
-                                           GetAddressTransactions,
-                                           GetTransactions, NewTransaction,
-                                           RefillTransaction,
-                                           WithdrawalTransaction)
-from bitpapa_pay.methods.base import BaseMethod
-from bitpapa_pay.methods.exchange_rates import GetExchangeRates
-from bitpapa_pay.methods.telegram import (CreateTelegramInvoice,
-                                          GetTelegramInvoices,
-                                          TelegramInvoices)
-from bitpapa_pay.methods.withdrawals import GetWithdrawalFees
-from bitpapa_pay.schemas.addresses import (CreateAddressOutputData,
-                                           GetAddressesOutputData,
-                                           GetAddressTransactionsOutputData,
-                                           GetTransactionsOutputData,
-                                           NewTransactionOutputData,
-                                           RefillTransactionOutputData,
-                                           WithdrawalTransactionOutputData)
-from bitpapa_pay.schemas.exchange_rates import GetExchangeRatesOutputData
-from bitpapa_pay.schemas.telegram import CreateTelegramInvoiceOutputData
-from bitpapa_pay.schemas.withdrawals import GetWithdrawalFeesOutputData
-from bitpapa_pay.version import VERSION
+
+# from bitpapa_pay.methods.addresses import (
+#     CreateAddress,
+#     GetAddresses,
+#     GetAddressTransactions,
+#     GetTransactions,
+#     NewTransaction,
+#     RefillTransaction,
+#     WithdrawalTransaction,
+# )
+from bitpapa_pay.methods import (
+    BaseMethod,
+    CreateAddressMethod,
+    CreateCryptoInvoiceMethod,
+    CreateFiatInvoiceMethod,
+    CreateTransactionMethod,
+    GetAddressesMethod,
+    GetAddressTransactionMethod,
+    GetExchangeRateMetod,
+    GetInvoicesMethod,
+    GetTransactionsMethod,
+    GetWithdrawalFeesMethod,
+    RefillTransactionMethod,
+    WithdrawalTransactionMethod,
+)
+
+# from bitpapa_pay.methods.base import BaseMethod
+# from bitpapa_pay.methods.exchange_rates import GetExchangeRates
+# from bitpapa_pay.methods.telegram import (
+#     CreateTelegramCryptoInvoice,
+#     GetTelegramInvoices,
+#     TelegramInvoices,
+# )
+# from bitpapa_pay.methods.withdrawals import GetWithdrawalFees
+# from bitpapa_pay.schemas.addresses import (
+#     CreateAddressOutputData,
+#     GetAddressesOutputData,
+#     GetAddressTransactionsOutputData,
+#     GetTransactionsOutputData,
+#     NewTransactionOutputData,
+#     RefillTransactionOutputData,
+#     WithdrawalTransactionOutputData,
+# )
+from bitpapa_pay.schemas import (
+    CreateAddressResponse,
+    CreateInvoiceResponse,
+    GetAddressesResponse,
+    GetAddressTransactionsResponse,
+    GetExchangeRatesResponse,
+    GetInvoicesResponse,
+    GetTransactionsResponse,
+    GetWithdrawalFeesResponse,
+    TransactionResponse,
+)
+
+# from bitpapa_pay.schemas.exchange_rates import GetExchangeRatesOutputData
+# from bitpapa_pay.schemas.telegram import CreateTelegramCryptoInvoiceOutputData
+# from bitpapa_pay.schemas.withdrawals import GetWithdrawalFeesOutputData
 
 
 class HttpClient:
+    BASE_URL = "https://bitpapa.com"
+
     def __init__(self, api_token: str, debug: bool = False) -> None:
         self._debug = debug
-        self._base_url = "https://bitpapa.com"
         self._api_token = api_token
         self._session: Optional[ClientSession] = None
 
@@ -43,7 +81,7 @@ class HttpClient:
         return {
             "Content-Type": "application/json",
             "User-Agent": f"AioBitpapaPay/{VERSION}",
-            "X-Access-Token": self._api_token
+            "X-Access-Token": self._api_token,
         }
 
     def get_session(self) -> ClientSession:
@@ -52,7 +90,7 @@ class HttpClient:
 
         if isinstance(self._session, ClientSession):
             return self._session
-        self._session = ClientSession(base_url=self._base_url, headers=headers)
+        self._session = ClientSession(base_url=self.BASE_URL, headers=headers)
         return self._session
 
     async def close(self):
@@ -63,7 +101,7 @@ class HttpClient:
         self,
         session: ClientSession,
         endpoint: str,
-        params: Optional[dict] = None
+        params: Optional[dict] = None,
     ):
         async with session.get(url=endpoint, params=params) as resp:
             self.debug_message(f"status: {resp.status}")
@@ -74,7 +112,7 @@ class HttpClient:
         self,
         session: ClientSession,
         endpoint: str,
-        json_data: Optional[dict] = None
+        json_data: Optional[dict] = None,
     ):
         async with session.post(url=endpoint, json=json_data) as resp:
             self.debug_message(f"status: {resp.status}")
@@ -83,23 +121,25 @@ class HttpClient:
 
     async def _make_request(self, method: BaseMethod):
         session = self.get_session()
-        request_data = method.get_data()
-        self.debug_message(f"request data: {request_data}")
         self.debug_message(
-            f"request url: {self._base_url}{request_data.endpoint}"
+            f"request url: {self.BASE_URL}{method.endpoint}",
         )
         try:
-            if request_data.request_type == "GET":
+            if method.request_type == RequestType.GET:
+                params = method.to_params()
+                self.debug_message(f"params: {params}")
                 result = await self._get_request(
                     session=session,
-                    endpoint=request_data.endpoint,
-                    params=request_data.params
+                    endpoint=method.endpoint,
+                    params=params,
                 )
-            elif request_data.request_type == "POST":
+            elif method.request_type == RequestType.POST:
+                payload_data = method.to_payload()
+                self.debug_message(f"request data: {payload_data}")
                 result = await self._post_request(
                     session=session,
-                    endpoint=request_data.endpoint,
-                    json_data=request_data.json_data
+                    endpoint=method.endpoint,
+                    json_data=payload_data,
                 )
         except ClientError as e:
             raise BadRequestError(e)
@@ -108,166 +148,199 @@ class HttpClient:
 
 
 class DefaultApiClient(HttpClient):
-    async def get_exchange_rates_all(self) -> GetExchangeRatesOutputData:
+    async def get_exchange_rates_all(self) -> GetExchangeRatesResponse:
         """Get all exchange rates, https://apidocs.bitpapa.com/docs/backend-apis-english/97573257c4827-get-a-v-1-exchange-rate-all
 
         Returns:
-            GetExchangeRatesOut: An object where the keys are abbreviations of 
+            GetExchangeRatesOut: An object where the keys are abbreviations of
             a pair of exchange rates separated by "_"
         """
-        method = GetExchangeRates()
+        method = GetExchangeRateMetod()
         result = await self._make_request(method)
-        return method.returning_model(**result)
+        return GetExchangeRatesResponse(**result)
 
-    async def get_withdrawal_fees(self) -> GetWithdrawalFeesOutputData:
+    async def get_withdrawal_fees(self) -> GetWithdrawalFeesResponse:
         """
-            Список слоев комиссий за вывод BTC и XMR в зависимости от суммы вывода в USD.
+        Список слоев комиссий за вывод BTC и XMR в зависимости от суммы вывода в USD.
         """
-        method = GetWithdrawalFees()
+        method = GetWithdrawalFeesMethod()
         result = await self._make_request(method)
-        return method.returning_model(**result)
+        return GetWithdrawalFeesResponse(**result)
 
 
 class AdressesApiClient(HttpClient):
     async def get_addresses(
         self,
         currency: Optional[str] = None,
-        label: Optional[str] = None
-    ) -> GetAddressesOutputData:
-        method = GetAddresses(currency, label)
+        label: Optional[str] = None,
+    ) -> GetAddressesResponse:
+        method = GetAddressesMethod(currency=currency, label=label)
         result = await self._make_request(method)
-        return method.returning_model(addresses=result)
+        return GetAddressesResponse(addresses=result)
 
     async def create_address(
         self,
         currency: str,
         network: str,
-        label: str = ""
-    ) -> CreateAddressOutputData:
-        method = CreateAddress(currency, network, label)
+        label: str = "",
+    ) -> CreateAddressResponse:
+        method = CreateAddressMethod(
+            currency=currency,
+            network=network,
+            label=label,
+        )
         result = await self._make_request(method)
-        return method.returning_model(**result)
+        return CreateAddressResponse(**result)
 
     async def get_transactions(
-        self
-    ) -> GetTransactionsOutputData:
-        method = GetTransactions()
+        self,
+    ) -> GetTransactionsResponse:
+        method = GetTransactionsMethod()
         result = await self._make_request(method)
         result = [
-            tr for tr in result
+            tr
+            for tr in result
             if tr["direction"] is not None
             and tr["amount"] is not None
             and tr["currency"] is not None
         ]
-        return method.returning_model(transactions=result)
+        return GetTransactionsResponse(transactions=result)
 
     async def get_address_transactions(
         self,
-        uuid: str
-    ) -> GetAddressTransactionsOutputData:
-        method = GetAddressTransactions(uuid)
+        uuid: str,
+    ) -> GetAddressTransactionsResponse:
+        method = GetAddressTransactionMethod(uuid=uuid)
         result = await self._make_request(method)
         result = {
             "transaction": [
-                tr for tr in result["transaction"]
+                tr
+                for tr in result["transaction"]
                 if tr["direction"] is not None
                 and tr["amount"] is not None
                 and tr["currency"] is not None
             ]
         }
-        return method.returning_model(**result)
+        return GetAddressTransactionsResponse(**result)
 
-    async def new_transaction(
+    async def create_transaction(
         self,
         currency: str,
-        amount: Union[int, float],
+        amount: float,
         from_address: str,
         to_address: str,
         network: str,
-        label: str = ""
-    ) -> NewTransactionOutputData:
-        method = NewTransaction(
+        label: str = "",
+    ) -> TransactionResponse:
+        method = CreateTransactionMethod(
             currency=currency,
             amount=amount,
             from_address=from_address,
             to_address=to_address,
             network=network,
-            label=label
+            label=label,
         )
         result = await self._make_request(method)
-        return method.returning_model(**result)
+        return TransactionResponse(**result)
 
     async def withdrawal_transaction(
         self,
         currency: str,
-        amount: Union[int, float],
+        amount: float,
         to_address: str,
         network: str,
-        label: str = ""
-    ) -> WithdrawalTransactionOutputData:
-        method = WithdrawalTransaction(
+        label: str = "",
+    ) -> TransactionResponse:
+        method = WithdrawalTransactionMethod(
             currency=currency,
             amount=amount,
             to_address=to_address,
             network=network,
-            label=label
+            label=label,
         )
         result = await self._make_request(method)
-        return method.returning_model(**result)
+        return TransactionResponse(**result)
 
     async def refill_transaction(
         self,
         currency: str,
-        amount: Union[int, float],
+        amount: float,
         from_address: str,
         network: str,
-        label: str = ""
-    ) -> RefillTransactionOutputData:
-        method = RefillTransaction(
+        label: str = "",
+    ) -> TransactionResponse:
+        method = RefillTransactionMethod(
             currency=currency,
             amount=amount,
             from_address=from_address,
             network=network,
-            label=label
+            label=label,
         )
         result = await self._make_request(method)
-        return method.returning_model(**result)
+        return TransactionResponse(**result)
 
 
 class BitpapaPayClient(HttpClient):
-    async def get_invoices(self) -> TelegramInvoices:
+    async def get_invoices(self, page: int = 1) -> GetInvoicesResponse:
         """Get the list of invoices, https://apidocs.bitpapa.com/docs/backend-apis-english/qph49kfhdjx0x-get-the-list-of-invoices
 
         Returns:
             TelegramInvoices: list of telegram invoices
         """
-        method = GetTelegramInvoices(api_token=self._api_token)
+        method = GetInvoicesMethod(page=page)
         result = await self._make_request(method)
-        return method.returning_model(**result)
+        return GetInvoicesResponse(**result)
 
-    async def create_invoice(
+    async def create_crypto_invoice(
         self,
+        amount: float,
         currency_code: str,
-        amount: Union[int, float],
-        crypto_address: Optional[str] = None
-    ) -> CreateTelegramInvoiceOutputData:
-        """Issue an invoice to get payment, https://apidocs.bitpapa.com/docs/backend-apis-english/23oj83o5x2su2-issue-an-invoice
-        Args:
-            currency_code (str): The ticker of accepted cryptocurrency, example: USDT
-            amount (Union[int, float]): The amount in cryptocurrency, example 100
-
-        Returns:
-            CreateTelegramInvoiceOutputData: Created telegram invoice data
-        """
-        method = CreateTelegramInvoice(
-            api_token=self._api_token,
-            currency_code=currency_code,
+        expiration_time: Optional[int] = None,
+        merchant_invoice_id: Optional[str] = None,
+        paid_button_name: Optional[str] = None,
+        paid_button_url: Optional[str] = None,
+        private_message: Optional[str] = None,
+        crypto_address: Optional[str] = None,
+    ) -> CreateInvoiceResponse:
+        method = CreateCryptoInvoiceMethod(
             amount=amount,
-            crypto_address=crypto_address
+            currency_code=currency_code,
+            crypto_address=crypto_address,
+            expiration_time=expiration_time,
+            merchant_invoice_id=merchant_invoice_id,
+            paid_button_name=paid_button_name,
+            paid_button_url=paid_button_url,
+            private_message=private_message,
         )
-        result = await self._make_request(method)
-        return method.returning_model(**result)
+        raw_response = await self._make_request(method)
+        return CreateInvoiceResponse(**raw_response)
+
+    async def create_fiat_invoice(
+        self,
+        accepted_crypto: List[str],
+        fiat_amount: float,
+        fiat_currency_code: str,
+        expiration_time: Optional[int] = None,
+        merchant_invoice_id: Optional[str] = None,
+        paid_button_name: Optional[str] = None,
+        paid_button_url: Optional[str] = None,
+        private_message: Optional[str] = None,
+        crypto_address: Optional[str] = None,
+    ) -> CreateInvoiceResponse:
+        method = CreateFiatInvoiceMethod(
+            accepted_crypto=accepted_crypto,
+            fiat_amount=fiat_amount,
+            fiat_currency_code=fiat_currency_code,
+            crypto_address=crypto_address,
+            expiration_time=expiration_time,
+            merchant_invoice_id=merchant_invoice_id,
+            paid_button_name=paid_button_name,
+            paid_button_url=paid_button_url,
+            private_message=private_message,
+        )
+        raw_response = await self._make_request(method)
+        return CreateInvoiceResponse(**raw_response)
 
 
-class BitpapaPay(BitpapaPayClient, DefaultApiClient, AdressesApiClient):
+class BitpapaPay(BitpapaPayClient, AdressesApiClient, DefaultApiClient):
     pass

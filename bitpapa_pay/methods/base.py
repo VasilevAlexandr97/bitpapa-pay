@@ -1,28 +1,25 @@
-from abc import ABC, abstractmethod
-from typing import Any, Literal
+from typing import Any, Dict
 
-from bitpapa_pay.schemas.base import BaseOutData
+from pydantic import BaseModel, ConfigDict
+
+from bitpapa_pay.enums import RequestType
 
 
-class BaseMethod(ABC):
-    @property
-    @abstractmethod
-    def endpoint(self) -> str:
-        pass
+class BaseMethod(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+    endpoint: str
+    request_type: RequestType
 
-    @property
-    @abstractmethod
-    def request_type(self) -> Literal["GET", "POST"]:
-        pass
 
-    @property
-    @abstractmethod
-    def returning_model(self) -> Any:
-        pass
-
-    def set_params(self, params: dict) -> dict:
-        return {key: params[key] for key in params if params[key] is not None}
-
-    @abstractmethod
-    def get_data(self) -> BaseOutData:
-        pass
+    def to_payload(self) -> Dict[str, Any]:
+        return self.model_dump(
+            exclude={"endpoint", "request_type", "api_token"},
+            by_alias=True,
+        )
+    
+    def to_params(self) -> Dict[str, Any]:
+        params = self.model_dump(
+            exclude={"endpoint", "request_type", "json_data"},
+            by_alias=True,
+        )
+        return {k: v for k, v in params.items() if v is not None}
