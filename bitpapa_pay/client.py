@@ -162,16 +162,24 @@ class AdressesApiClient(HttpClient):
 
     async def get_transactions(
         self,
+        page: int = 1,
+        limit: int = 100,
     ) -> GetTransactionsResponse:
-        method = GetTransactionsMethod()
+        method = GetTransactionsMethod(page=page, limit=limit)
         result = await self._make_request(method)
         return GetTransactionsResponse(transactions=result)
 
     async def get_address_transactions(
         self,
         uuid: str,
+        page: int = 1,
+        limit: int = 100,
     ) -> GetAddressTransactionsResponse:
-        method = GetAddressTransactionMethod(uuid=uuid)
+        method = GetAddressTransactionMethod(
+            uuid=uuid,
+            page=page,
+            limit=limit,
+        )
         result = await self._make_request(method)
         return GetAddressTransactionsResponse(**result)
 

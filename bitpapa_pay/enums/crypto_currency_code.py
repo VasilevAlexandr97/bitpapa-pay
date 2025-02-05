@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class CryptoCurrencyCode(Enum):
+class CryptoCurrencyCode(str, Enum):
     BTC = "BTC"
     DAI = "DAI"
     ETH = "ETH"
