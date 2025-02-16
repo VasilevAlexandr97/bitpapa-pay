@@ -1,5 +1,5 @@
 line-length = 79
-target-version="py39"
+target-version="py38"
 src = ["bitpapa_pay"]
 
 include = ["bitpapa_pay/**.py"]
