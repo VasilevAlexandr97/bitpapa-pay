@@ -1,3 +1,4 @@
 from bitpapa_pay.client import BitpapaPay
+from bitpapa_pay.exceptions import BadRequestError
 
-__all__ = ["BitpapaPay"]
+__all__ = ["BadRequestError", "BitpapaPay"]
