@@ -17,8 +17,8 @@ from bitpapa_pay.methods import (
     GetInvoicesMethod,
     GetTransactionsMethod,
     GetWithdrawalFeesMethod,
-    RefillTransactionMethod,
-    WithdrawalTransactionMethod,
+    MasterRefillTransactionMethod,
+    MasterWithdrawalTransactionMethod,
 )
 from bitpapa_pay.schemas import (
     CreateAddressResponse,
@@ -203,7 +203,7 @@ class AdressesApiClient(HttpClient):
         result = await self._make_request(method)
         return TransactionResponse(**result)
 
-    async def withdrawal_transaction(
+    async def master_withdrawal_transaction(
         self,
         currency: str,
         amount: float,
@@ -211,7 +211,7 @@ class AdressesApiClient(HttpClient):
         network: str,
         label: str = "",
     ) -> TransactionResponse:
-        method = WithdrawalTransactionMethod(
+        method = MasterWithdrawalTransactionMethod(
             currency=currency,
             amount=amount,
             to_address=to_address,
@@ -221,7 +221,7 @@ class AdressesApiClient(HttpClient):
         result = await self._make_request(method)
         return TransactionResponse(**result)
 
-    async def refill_transaction(
+    async def master_refill_transaction(
         self,
         currency: str,
         amount: float,
@@ -229,7 +229,7 @@ class AdressesApiClient(HttpClient):
         network: str,
         label: str = "",
     ) -> TransactionResponse:
-        method = RefillTransactionMethod(
+        method = MasterRefillTransactionMethod(
             currency=currency,
             amount=amount,
             from_address=from_address,

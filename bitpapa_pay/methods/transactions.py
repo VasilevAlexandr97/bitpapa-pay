@@ -34,7 +34,7 @@ class CreateTransactionMethod(BaseMethod):
     label: str = ""
 
 
-class WithdrawalTransactionMethod(BaseMethod):
+class MasterWithdrawalTransactionMethod(BaseMethod):
     endpoint: str = "/a3s/v1/master/withdrawal"
     request_type: RequestType = RequestType.POST
     currency: str
@@ -44,7 +44,7 @@ class WithdrawalTransactionMethod(BaseMethod):
     label: str = ""
 
 
-class RefillTransactionMethod(BaseMethod):
+class MasterRefillTransactionMethod(BaseMethod):
     endpoint: str = "/a3s/v1/master/refill"
     request_type: RequestType = RequestType.POST
     direction: str = "withdraw"

@@ -16,8 +16,8 @@ from bitpapa_pay.methods.transactions import (
     CreateTransactionMethod,
     GetAddressTransactionMethod,
     GetTransactionsMethod,
-    RefillTransactionMethod,
-    WithdrawalTransactionMethod,
+    MasterRefillTransactionMethod,
+    MasterWithdrawalTransactionMethod,
 )
 
 __all__ = [
@@ -32,6 +32,6 @@ __all__ = [
     "GetInvoicesMethod",
     "GetTransactionsMethod",
     "GetWithdrawalFeesMethod",
-    "RefillTransactionMethod",
-    "WithdrawalTransactionMethod",
+    "MasterRefillTransactionMethod",
+    "MasterWithdrawalTransactionMethod",
 ]
