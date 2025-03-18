@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 
 from pydantic import model_validator
 
@@ -88,12 +88,28 @@ class CreateCryptoInvoiceMethod(CreateInvoiceMethod):
             )
         return self
 
+    def to_payload(self) -> Dict[str, Any]:
+        return {
+            "invoice": self.model_dump(
+                exclude={"endpoint", "request_type", "api_token"},
+                by_alias=True,
+            ),
+        }
+
 
 class CreateFiatInvoiceMethod(CreateInvoiceMethod):
     accepted_crypto: List[str]
     fiat_amount: float
     fiat_currency_code: str
     invoice_type: str = InvoiceType.FIAT.value
+
+    def to_payload(self) -> Dict[str, Any]:
+        return {
+            "invoice": self.model_dump(
+                exclude={"endpoint", "request_type", "api_token"},
+                by_alias=True,
+            ),
+        }
 
 
 class GetInvoicesMethod(BaseMethod):
